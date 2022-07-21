@@ -70,7 +70,7 @@ class FileDates
    * @param string $filename The given filename
    * @return false|int regular expression match: 1, FALSE if the string is not a proper filename.
    */
-  protected function is_valid_filename($filename)
+  protected function is_valid_filename(string $filename)
   {
     return preg_match('/^([-\.\w]+)$/', $filename);
   }
@@ -81,7 +81,7 @@ class FileDates
    * @param string $filename The given filename
    * @return string $filename with ".csv" extension.
    */
-  protected function add_csv_filename($filename)
+  protected function add_csv_filename(string $filename): string
   {
     if (pathinfo($filename, PATHINFO_EXTENSION) != 'csv') {
       $filename .= '.csv';
@@ -118,8 +118,8 @@ class SalaryDates
   const BONUS_PAYMENT_OPTIONAL_WEEKDAY = 3;
   const MONTH_NUMBER = 12;
 
-  protected $salary_dates;
-  protected $firstDayMonth;
+  protected array $salary_dates;
+  protected datetime $firstDayMonth;
 
   function __construct()
   {
@@ -138,7 +138,7 @@ class SalaryDates
    * Calculates payment days.
    * @return array payment dates
    */
-  function get_payment_days()
+  function get_payment_days(): array
   {
     // Calculates the payment days in a loop and stores into an array.
     for ($i = 0; $i < self::MONTH_NUMBER; $i++) {
@@ -162,7 +162,7 @@ class SalaryDates
    * @return string|false number of weekend days (6 - Saturday, 7 - Sunday) or FALSE if the date is not a weeekend day.
    * @throws
    */
-  protected function is_weekend($date)
+  protected function is_weekend(datetime $date)
   {
     try {
       $dateTime = new DateTime($date->format('Y-m-d'));
@@ -180,7 +180,7 @@ class SalaryDates
    * @return datetime last day of the give month.
    * @throws
    */
-  protected function last_day_month($date)
+  protected function last_day_month(datetime $date): datetime
   {
     try {
       $dateTime = new DateTime($date->format('Y-m-d'));
@@ -198,7 +198,7 @@ class SalaryDates
    * @return datetime $dateTime  The next month.
    * @throws
    */
-  protected function add_month($dateTime)
+  protected function add_month(datetime $dateTime): datetime
   {
     $oldDay = $dateTime->format("d");
     $dateTime->add(new DateInterval("P1M"));
@@ -219,7 +219,7 @@ class SalaryDates
    * @return datetime $salaryPaymentDay The calculated salary payment day.
    * @throws
    */
-  protected function get_salary_payment_day($firstDayMonth)
+  protected function get_salary_payment_day(datetime $firstDayMonth): datetime
   {
     $salaryPaymentDay = self::last_day_month($firstDayMonth);
     if ($weekendday = self::is_weekend($salaryPaymentDay)) {
@@ -238,7 +238,7 @@ class SalaryDates
    * @return datetime $bonusPaymentDay The calculated bonus payment day.
    * @throws
    */
-  protected function get_bonus_payment_day($firstDayMonth)
+  protected function get_bonus_payment_day(datetime $firstDayMonth): datetime
   {
     try {
       $bonusPaymentDay = new DateTime($firstDayMonth->format('Y-m-' . self::BONUS_PAYMENT_DATE));
@@ -262,7 +262,9 @@ class SalaryDates
  * Payment date calculation.
  * It gets filename from the argument, calculates the payment dates and put into the 'filename.csv' file.
  */
-$filedate = new FileDates($argv[1]);
+$filename = $argv[1] ?? "salary_dates.csv";
+
+$filedate = new FileDates($filename);
 
 if ($filedate->getFilename()) {
   $salarydate = new SalaryDates();
