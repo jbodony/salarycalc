@@ -274,4 +274,3 @@ if ($filedate->getFilename()) {
   echo "\nThe filename is invalid.\n";
 }
 ?>
-
